@@ -70,6 +70,15 @@ describe('view actions', () => {
     getState().setZoom(3 as ZoomLevel)
     expect(getState().view.zoom).toBe(4)
   })
+  it('sets offsets and toggles grid', () => {
+    getState().setViewOffsets(10, 20)
+    expect(getState().view.offsetX).toBe(10)
+    expect(getState().view.offsetY).toBe(20)
+    getState().toggleGrid()
+    expect(getState().view.showGrid).toBe(true)
+    getState().toggleGrid(false)
+    expect(getState().view.showGrid).toBe(false)
+  })
 })
 
 describe('pointer + tool actions', () => {

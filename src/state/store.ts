@@ -89,6 +89,8 @@ type StoreState = EditorState & {
   setDocument: (doc: DocumentState | DocumentUpdater) => void
   updateView: (updater: (current: ViewState) => ViewState) => void
   setZoom: (zoom: ZoomLevel) => void
+  setViewOffsets: (offsetX: number, offsetY: number) => void
+  toggleGrid: (value?: boolean) => void
   setPointer: (state: Partial<PointerState>) => void
   setTool: (activeToolId: string) => void
   setHistory: (state: Partial<HistoryState>) => void
@@ -122,6 +124,23 @@ export const useEditorStore = create<StoreState>()(
     setZoom: (zoom) => {
       const clamped = ZOOM_LEVELS.includes(zoom) ? zoom : DEFAULT_ZOOM
       set((state) => ({ view: { ...state.view, zoom: clamped } }))
+    },
+    setViewOffsets: (offsetX, offsetY) => {
+      set((state) => ({
+        view: {
+          ...state.view,
+          offsetX,
+          offsetY,
+        },
+      }))
+    },
+    toggleGrid: (value) => {
+      set((state) => ({
+        view: {
+          ...state.view,
+          showGrid: typeof value === 'boolean' ? value : !state.view.showGrid,
+        },
+      }))
     },
     setPointer: (partial) => {
       set((state) => ({ pointer: { ...state.pointer, ...partial } }))
@@ -164,5 +183,10 @@ export const useView = <T>(selector: (state: ViewState) => T) =>
 export const usePointer = () => useEditorStore((state) => state.pointer)
 export const useTool = () => useEditorStore((state) => state.tool)
 export const useHistory = () => useEditorStore((state) => state.history)
+export const useHistoryAvailability = () =>
+  useEditorStore((state) => ({
+    canUndo: state.history.undoStack.length > 0,
+    canRedo: state.history.redoStack.length > 0,
+  }))
 
 export type EditorStoreState = StoreState
