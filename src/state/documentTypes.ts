@@ -50,6 +50,7 @@ export interface ViewState {
   offsetX: number
   offsetY: number
   showGrid: boolean
+  cycleAnimationEnabled: boolean
 }
 
 export interface PointerState {

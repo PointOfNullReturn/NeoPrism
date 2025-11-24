@@ -8,7 +8,14 @@ export const importIlbmFromFile = async (file: File): Promise<void> => {
     const buffer = await file.arrayBuffer()
     const ilbm = parseILBM(buffer)
     const current = useEditorStore.getState()
-    const nextView = { ...current.view, zoom: current.view.zoom, offsetX: 0, offsetY: 0 }
+    const hasActiveCycles = (ilbm.cycles ?? []).some((cycle) => cycle.active)
+    const nextView = {
+      ...current.view,
+      zoom: current.view.zoom,
+      offsetX: 0,
+      offsetY: 0,
+      cycleAnimationEnabled: hasActiveCycles ? true : current.view.cycleAnimationEnabled,
+    }
     const nextPalette = {
       colors: ilbm.palette.map((color) => ({ ...color })),
       foregroundIndex: 1,

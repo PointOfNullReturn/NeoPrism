@@ -117,6 +117,7 @@ export function createDefaultView(): ViewState {
     offsetX: 0,
     offsetY: 0,
     showGrid: false,
+    cycleAnimationEnabled: false,
   }
 }
 
@@ -173,6 +174,7 @@ type StoreState = EditorState & {
   setZoom: (zoom: ZoomLevel) => void
   setViewOffsets: (offsetX: number, offsetY: number) => void
   toggleGrid: (value?: boolean) => void
+  setCycleAnimationEnabled: (enabled: boolean | ((current: boolean) => boolean)) => void
   setRectangleFilled: (filled: boolean) => void
   setPaletteColors: (colors: PaletteColor[]) => void
   updatePaletteColor: (index: number, color: PaletteColor) => void
@@ -243,6 +245,17 @@ export const useEditorStore = create<StoreState>()(
           showGrid: typeof value === 'boolean' ? value : !state.view.showGrid,
         },
       }))
+    },
+    setCycleAnimationEnabled: (enabled) => {
+      set((state) => {
+        const nextValue = typeof enabled === 'function' ? enabled(state.view.cycleAnimationEnabled) : enabled
+        return {
+          view: {
+            ...state.view,
+            cycleAnimationEnabled: nextValue,
+          },
+        }
+      })
     },
     setRectangleFilled: (filled) => {
       set((state) => ({

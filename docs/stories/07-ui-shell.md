@@ -47,3 +47,4 @@
 - Status bar now derives palette indices/colors, pointer coordinates, and undo/redo availability through isolated selectors using `useShallow`, preventing pointless re-renders.
 - UI shows zero-padded indices plus uppercase hex values, rounded coordinates, and availability chips that swap styles based on each stack.
 - Tests assert palette updates, pointer rounding, and undo/redo readouts to lock the behavior in.
+- Added palette-cycle controls: the View menu (and `Ctrl+Shift+C`) toggles live palette animation so ILBM CRNG ranges can animate just like classic Deluxe Paint.

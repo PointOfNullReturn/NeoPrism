@@ -1,6 +1,6 @@
 import { PROJECT_VERSION, decodeBase64, type ProjectSnapshot } from './projectSchema'
 import type { DocumentState, PaletteState, ViewState } from '../state/documentTypes'
-import { createDefaultPaletteState, useEditorStore } from '../state/store'
+import { createDefaultPaletteState, createDefaultView, useEditorStore } from '../state/store'
 import { executeCommand } from '../state/commands/Command'
 import { LoadProjectCommand } from '../state/commands/LoadProjectCommand'
 
@@ -69,7 +69,7 @@ export const buildStateFromSnapshot = (snapshot: ProjectSnapshot): {
 } => {
   validateSnapshot(snapshot)
   const document = createDocument(snapshot.document)
-  const view = { ...snapshot.view }
+  const view = { ...createDefaultView(), ...snapshot.view }
   const palette = createPaletteState(snapshot, document)
   return { document, view, palette }
 }

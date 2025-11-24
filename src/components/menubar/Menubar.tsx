@@ -19,9 +19,11 @@ export const Menubar = () => {
   const toggleMenu = (menu: string) => {
     setOpenMenu((current) => (current === menu ? null : menu))
   }
+  const closeMenu = () => setOpenMenu(null)
 
   const handleNew = () => {
     resetEditorStore()
+    closeMenu()
   }
 
   const handleSave = () => {
@@ -33,6 +35,7 @@ export const Menubar = () => {
     a.download = 'swankypaint-project.json'
     a.click()
     URL.revokeObjectURL(url)
+    closeMenu()
   }
 
   const handleOpenJson = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -41,6 +44,7 @@ export const Menubar = () => {
     const content = await file.text()
     loadProject(content)
     event.target.value = ''
+    closeMenu()
   }
 
   const handleOpenIlbm = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -48,6 +52,7 @@ export const Menubar = () => {
     if (!file) return
     await importIlbmFromFile(file)
     event.target.value = ''
+    closeMenu()
   }
 
   return (
@@ -80,14 +85,20 @@ export const Menubar = () => {
         <button type="button" onClick={() => toggleMenu('view')}>
           View
         </button>
-        {openMenu === 'view' && <ViewMenu />}
+        {openMenu === 'view' && <ViewMenu onRequestClose={closeMenu} />}
         <button type="button" onClick={() => toggleMenu('help')}>
           Help
         </button>
         {openMenu === 'help' && (
           <ul className="menu" role="menu">
             <li>
-              <button type="button" onClick={() => setAboutOpen(true)}>
+              <button
+                type="button"
+                onClick={() => {
+                  setAboutOpen(true)
+                  closeMenu()
+                }}
+              >
                 About
               </button>
             </li>
@@ -101,27 +112,59 @@ export const Menubar = () => {
   )
 }
 
-const ViewMenu = () => {
+const ViewMenu = ({ onRequestClose }: { onRequestClose: () => void }) => {
   const view = useEditorStore((state) => state.view)
   const toggleGrid = useEditorStore((state) => state.toggleGrid)
   const setZoom = useEditorStore((state) => state.setZoom)
+  const setCycleAnimationEnabled = useEditorStore((state) => state.setCycleAnimationEnabled)
   const zoomLevels = [1, 2, 4, 8, 16, 32] as const
   const zoomIndex = zoomLevels.indexOf(view.zoom as typeof zoomLevels[number])
   return (
     <ul className="menu" role="menu">
       <li>
-        <button type="button" onClick={() => toggleGrid()}>
+        <button
+          type="button"
+          onClick={() => {
+            toggleGrid()
+            onRequestClose()
+          }}
+        >
           {view.showGrid ? 'Hide Grid' : 'Show Grid'}
         </button>
       </li>
       <li>
-        <button type="button" disabled={zoomIndex >= zoomLevels.length - 1} onClick={() => setZoom(zoomLevels[zoomIndex + 1] ?? view.zoom)}>
+        <button
+          type="button"
+          disabled={zoomIndex >= zoomLevels.length - 1}
+          onClick={() => {
+            setZoom(zoomLevels[zoomIndex + 1] ?? view.zoom)
+            onRequestClose()
+          }}
+        >
           Zoom In
         </button>
       </li>
       <li>
-        <button type="button" disabled={zoomIndex <= 0} onClick={() => setZoom(zoomLevels[zoomIndex - 1] ?? view.zoom)}>
+        <button
+          type="button"
+          disabled={zoomIndex <= 0}
+          onClick={() => {
+            setZoom(zoomLevels[zoomIndex - 1] ?? view.zoom)
+            onRequestClose()
+          }}
+        >
           Zoom Out
+        </button>
+      </li>
+      <li>
+        <button
+          type="button"
+          onClick={() => {
+            setCycleAnimationEnabled((current) => !current)
+            onRequestClose()
+          }}
+        >
+          {view.cycleAnimationEnabled ? 'Disable Cycling' : 'Enable Cycling'}
         </button>
       </li>
     </ul>
