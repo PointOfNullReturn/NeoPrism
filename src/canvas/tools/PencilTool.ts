@@ -11,6 +11,8 @@ class StrokeCommand implements Command {
   readonly label = 'Pencil stroke'
   private readonly beforeIndexed?: Uint8Array
   private readonly beforeRgba?: Uint32Array
+  private afterIndexed?: Uint8Array
+  private afterRgba?: Uint32Array
   private readonly coordinates: Array<[number, number]> = []
   private readonly value: number
   private readonly isIndexed: boolean
@@ -31,7 +33,23 @@ class StrokeCommand implements Command {
     this.coordinates.push(point)
   }
 
+  captureAfter(document: EditorStoreState['document']): void {
+    if (document.mode === 'indexed8') {
+      this.afterIndexed = new Uint8Array(document.pixels)
+    } else {
+      this.afterRgba = new Uint32Array(document.pixels)
+    }
+  }
+
   do(state: EditorStoreState): void {
+    if (this.afterIndexed || this.afterRgba) {
+      if (this.isIndexed && this.afterIndexed) {
+        state.setDocument({ ...state.document, pixels: new Uint8Array(this.afterIndexed) })
+      } else if (!this.isIndexed && this.afterRgba) {
+        state.setDocument({ ...state.document, pixels: new Uint32Array(this.afterRgba) })
+      }
+      return
+    }
     const doc = state.document
     if (this.coordinates.length === 0) return
     let prev = this.coordinates[0]
@@ -58,26 +76,27 @@ export class PencilTool implements Tool {
   id = 'pencil'
   private activeCommand: StrokeCommand | null = null
   private lastPoint: [number, number] | null = null
-  private strokeValue = 1
 
   onPointerDown(state: EditorStoreState, x: number, y: number, evt: PointerEvent): void {
-    this.strokeValue = getPointerColor(state, evt)
-    this.activeCommand = new StrokeCommand(state.document, this.strokeValue)
+    const strokeValue = getPointerColor(state, evt)
+    this.activeCommand = new StrokeCommand(state.document, strokeValue)
     this.activeCommand.addPoint([x, y])
-    drawLine(state.document, x, y, x, y, this.strokeValue)
+    drawLine(state.document, x, y, x, y, strokeValue)
     this.lastPoint = [x, y]
   }
 
-  onPointerMove(state: EditorStoreState, x: number, y: number, _evt: PointerEvent): void {
+  onPointerMove(state: EditorStoreState, x: number, y: number, evt: PointerEvent): void {
     if (!this.activeCommand || !this.lastPoint) return
-    drawLine(state.document, this.lastPoint[0], this.lastPoint[1], x, y, this.strokeValue)
+    const strokeValue = getPointerColor(state, evt)
+    drawLine(state.document, this.lastPoint[0], this.lastPoint[1], x, y, strokeValue)
     this.activeCommand.addPoint([x, y])
     this.lastPoint = [x, y]
   }
 
-  onPointerUp(state: EditorStoreState, x: number, y: number, _evt: PointerEvent): void {
+  onPointerUp(state: EditorStoreState, x: number, y: number, evt: PointerEvent): void {
     if (!this.activeCommand) return
     this.activeCommand.addPoint([x, y])
+    this.activeCommand.captureAfter(state.document)
     executeCommand(this.activeCommand, { skipDo: true })
     this.activeCommand = null
     this.lastPoint = null

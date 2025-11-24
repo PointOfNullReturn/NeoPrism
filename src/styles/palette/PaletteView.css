@@ -1,0 +1,34 @@
+.palette-view {
+  display: grid;
+  grid-template-columns: repeat(16, minmax(0, 1fr));
+  gap: 4px;
+  padding: 8px;
+  background: #1b1b1d;
+  border: 1px solid #34343a;
+  border-radius: 4px;
+  max-width: 480px;
+}
+
+.palette-swatch {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border: 2px solid transparent;
+  border-radius: 2px;
+  cursor: pointer;
+  padding: 0;
+}
+
+.palette-swatch.is-foreground {
+  border-color: #ffffff;
+  box-shadow: 0 0 0 1px #ffffff;
+}
+
+.palette-swatch.is-background {
+  outline: 2px solid #000000;
+  outline-offset: -4px;
+}
+
+.palette-swatch.is-foreground.is-background {
+  border-color: #ffffff;
+  outline: 2px solid #000000;
+}

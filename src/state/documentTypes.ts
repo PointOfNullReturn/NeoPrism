@@ -58,11 +58,16 @@ export interface PointerState {
   lastY: number
 }
 
+export interface PaletteState {
+  colors: PaletteColor[]
+  foregroundIndex: number
+  backgroundIndex: number
+  cycles?: CRNGRange[]
+}
+
 export interface ToolState {
   rectangleFilled: boolean
   activeToolId: string
-  foregroundIndex: number
-  backgroundIndex: number
 }
 
 export interface HistoryState<CommandShape = CommandLike> {
@@ -73,6 +78,7 @@ export interface HistoryState<CommandShape = CommandLike> {
 
 export interface EditorState {
   document: DocumentState
+  palette: PaletteState
   view: ViewState
   history: HistoryState
   pointer: PointerState

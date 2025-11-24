@@ -6,7 +6,7 @@ import App from '@/app/App'
 describe('App', () => {
   it('renders default headline', () => {
     render(<App />)
-    const heading = screen.getByRole('heading', { name: /Vite \+ React/i })
+    const heading = screen.getByRole('heading', { name: /SwankyPaint \(MVP\)/i })
     expect(heading).toBeInTheDocument()
   })
 })

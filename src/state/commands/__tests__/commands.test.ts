@@ -3,6 +3,7 @@ import { afterEach, describe, expect, it } from 'vitest'
 import { executeCommand, redoLastCommand, undoLastCommand } from '../Command'
 import { ClearDocumentCommand } from '../ClearDocumentCommand'
 import { resetEditorStore, useEditorStore } from '../../store'
+import { PaletteChangeCommand } from '../PaletteChangeCommand'
 
 const getStore = () => useEditorStore.getState()
 
@@ -42,5 +43,35 @@ describe('command execution', () => {
     expect(redone).toBe(command)
     expect(getStore().document.pixels[0]).toBe(0)
     expect(getStore().history.undoStack).toHaveLength(1)
+  })
+})
+
+describe('PaletteChangeCommand', () => {
+  it('applies palette operations with undo/redo support', () => {
+    const initialColors = getStore().palette.colors.map((color) => ({ ...color }))
+    const command = new PaletteChangeCommand([
+      { type: 'update', index: 0, color: { r: 10, g: 20, b: 30, a: 255 } },
+      { type: 'insert', index: 1, color: { r: 5, g: 6, b: 7, a: 255 } },
+      { type: 'remove', index: 3 },
+    ])
+
+    executeCommand(command)
+    expect(getStore().palette.colors[0]).toEqual({ r: 10, g: 20, b: 30, a: 255 })
+    expect(getStore().palette.colors).not.toEqual(initialColors)
+
+    undoLastCommand()
+    expect(getStore().palette.colors).toEqual(initialColors)
+
+    redoLastCommand()
+    expect(getStore().palette.colors[0]).toEqual({ r: 10, g: 20, b: 30, a: 255 })
+  })
+
+  it('updates CRNG cycles and restores them on undo', () => {
+    const cycles = [{ rate: 2, low: 1, high: 3, active: true }]
+    const command = new PaletteChangeCommand([{ type: 'setCycles', cycles }])
+    executeCommand(command)
+    expect(getStore().palette.cycles).toEqual(cycles)
+    undoLastCommand()
+    expect(getStore().palette.cycles).toEqual([])
   })
 })

@@ -7,7 +7,8 @@ import { EraserTool } from '../EraserTool'
 import { resetEditorStore, useEditorStore } from '../../../state/store'
 import { undoLastCommand } from '../../../state/commands/Command'
 
-const pointerEvent = (button = 0): PointerEvent => ({ button } as PointerEvent)
+const pointerEvent = (button = 0, buttons?: number): PointerEvent =>
+  ({ button, buttons: buttons ?? (button === 2 ? 2 : button === 0 ? 1 : 0) } as PointerEvent)
 
 const getIndexedDocument = () => {
   const state = useEditorStore.getState()
@@ -45,13 +46,13 @@ describe('Tool + color integration', () => {
     const picker = new PickerTool()
 
     picker.onPointerDown(useEditorStore.getState(), 0, 0, pointerEvent(0))
-    expect(useEditorStore.getState().tool.foregroundIndex).toBe(9)
+    expect(useEditorStore.getState().palette.foregroundIndex).toBe(9)
 
     mutateIndexedDocument((pixels) => {
       pixels[1] = 3
     })
     picker.onPointerDown(useEditorStore.getState(), 1, 0, pointerEvent(2))
-    expect(useEditorStore.getState().tool.backgroundIndex).toBe(3)
+    expect(useEditorStore.getState().palette.backgroundIndex).toBe(3)
   })
 
   it('Pencil uses the configured foreground index and remains undoable', () => {
@@ -59,11 +60,21 @@ describe('Tool + color integration', () => {
     const pencil = new PencilTool()
 
     pencil.onPointerDown(useEditorStore.getState(), 0, 0, pointerEvent(0))
-    pencil.onPointerUp(useEditorStore.getState(), 0, 0, pointerEvent(0))
+    pencil.onPointerUp(useEditorStore.getState(), 0, 0, pointerEvent(0, 0))
 
     expect(getIndexedDocument().pixels[0]).toBe(7)
     undoLastCommand()
     expect(getIndexedDocument().pixels[0]).toBe(0)
+  })
+
+  it('Pencil adopts new foreground color mid stroke', () => {
+    const pencil = new PencilTool()
+    pencil.onPointerDown(useEditorStore.getState(), 0, 0, pointerEvent(0))
+    useEditorStore.getState().setForegroundIndex(9)
+    pencil.onPointerMove(useEditorStore.getState(), 1, 0, pointerEvent(0))
+    pencil.onPointerUp(useEditorStore.getState(), 1, 0, pointerEvent(0, 0))
+    const doc = getIndexedDocument()
+    expect(doc.pixels[1]).toBe(9)
   })
 
   it('Fill uses background when invoked with secondary button', () => {
@@ -89,11 +100,27 @@ describe('Tool + color integration', () => {
     const eraser = new EraserTool()
 
     pencil.onPointerDown(useEditorStore.getState(), 0, 0, pointerEvent(0))
-    pencil.onPointerUp(useEditorStore.getState(), 0, 0, pointerEvent(0))
+    pencil.onPointerUp(useEditorStore.getState(), 0, 0, pointerEvent(0, 0))
     expect(getIndexedDocument().pixels[0]).toBe(6)
 
     eraser.onPointerDown(useEditorStore.getState(), 0, 0, pointerEvent(0))
-    eraser.onPointerUp(useEditorStore.getState(), 0, 0, pointerEvent(0))
+    eraser.onPointerUp(useEditorStore.getState(), 0, 0, pointerEvent(0, 0))
     expect(getIndexedDocument().pixels[0]).toBe(1)
+  })
+
+  it('Eraser adopts new background index mid stroke', () => {
+    const eraser = new EraserTool()
+    const store = useEditorStore.getState()
+    store.setForegroundIndex(2)
+    const pencil = new PencilTool()
+    pencil.onPointerDown(useEditorStore.getState(), 0, 0, pointerEvent(0))
+    pencil.onPointerUp(useEditorStore.getState(), 0, 0, pointerEvent(0, 0))
+    useEditorStore.getState().setBackgroundIndex(5)
+    eraser.onPointerDown(useEditorStore.getState(), 0, 0, pointerEvent(0))
+    useEditorStore.getState().setBackgroundIndex(3)
+    eraser.onPointerMove(useEditorStore.getState(), 1, 0, pointerEvent(0))
+    eraser.onPointerUp(useEditorStore.getState(), 1, 0, pointerEvent(0, 0))
+    const doc = getIndexedDocument()
+    expect(doc.pixels[1]).toBe(3)
   })
 })

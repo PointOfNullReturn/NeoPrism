@@ -1,0 +1,57 @@
+.palette-editor {
+  margin-top: 1rem;
+  padding: 1rem;
+  border: 1px solid #34343a;
+  background: #1a1a1e;
+  border-radius: 4px;
+  max-width: 480px;
+  color: #f4f4f6;
+}
+
+.palette-editor__header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.palette-editor__header select {
+  margin-left: 0.5rem;
+}
+
+.channel-controls {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 0.75rem;
+}
+
+.channel-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.palette-editor-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.crng-controls {
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.cycle-fields {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.cycle-fields label {
+  display: flex;
+  flex-direction: column;
+}

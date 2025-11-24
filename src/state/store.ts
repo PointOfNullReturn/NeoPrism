@@ -6,7 +6,9 @@ import type {
   EditorState,
   HistoryState,
   IndexedDocument,
+  CRNGRange,
   PaletteColor,
+  PaletteState,
   PointerState,
   ToolState,
   ViewState,
@@ -24,6 +26,19 @@ const DEFAULT_TOOL_ID = 'pencil'
 const DEFAULT_PALETTE_LENGTH = 32
 const DEFAULT_FOREGROUND_INDEX = 1
 const DEFAULT_BACKGROUND_INDEX = 0
+const MIN_PALETTE_LENGTH = 2
+
+const clampChannel = (value: number): number => {
+  if (!Number.isFinite(value)) return 0
+  return Math.max(0, Math.min(255, Math.round(value)))
+}
+
+const sanitizeColor = (color: PaletteColor): PaletteColor => ({
+  r: clampChannel(color.r),
+  g: clampChannel(color.g),
+  b: clampChannel(color.b),
+  a: clampChannel(color.a ?? 255),
+})
 
 export function createDefaultPalette(length = DEFAULT_PALETTE_LENGTH): PaletteColor[] {
   const clamped = Math.min(Math.max(2, length), MAX_PALETTE_SIZE)
@@ -35,14 +50,64 @@ export function createDefaultPalette(length = DEFAULT_PALETTE_LENGTH): PaletteCo
   }))
 }
 
-export function createDefaultIndexedDocument(): IndexedDocument {
+const sanitizePaletteArray = (colors: PaletteColor[]): PaletteColor[] => {
+  const bounded = colors.slice(0, MAX_PALETTE_SIZE).map(sanitizeColor)
+  while (bounded.length < MIN_PALETTE_LENGTH) {
+    bounded.push({ r: 0, g: 0, b: 0, a: 255 })
+  }
+  return bounded
+}
+
+const clampIndex = (value: number, max: number): number => {
+  if (max <= 0) return 0
+  return Math.max(0, Math.min(value, max))
+}
+
+const normalizePaletteState = (palette: PaletteState): PaletteState => {
+  const colors = sanitizePaletteArray(palette.colors)
+  const maxIndex = colors.length - 1
+  const foregroundIndex = clampIndex(palette.foregroundIndex, maxIndex)
+  const backgroundIndex = clampIndex(palette.backgroundIndex, maxIndex)
+  return {
+    colors,
+    foregroundIndex,
+    backgroundIndex,
+    cycles: palette.cycles?.map((cycle) => ({ ...cycle })),
+  }
+}
+
+const syncDocumentPalette = (document: DocumentState, palette: PaletteState): DocumentState => {
+  if (document.mode !== 'indexed8') {
+    return document
+  }
+  return {
+    ...document,
+    palette: palette.colors.slice(),
+    cycles: palette.cycles?.map((cycle) => ({ ...cycle })) ?? [],
+  }
+}
+
+const updatePaletteState = (
+  palette: PaletteState,
+  document: DocumentState,
+  updater: (current: PaletteState) => PaletteState,
+): { palette: PaletteState; document: DocumentState } => {
+  const nextPalette = normalizePaletteState(updater(palette))
+  const nextDocument = syncDocumentPalette(document, nextPalette)
+  return { palette: nextPalette, document: nextDocument }
+}
+
+export function createDefaultIndexedDocument(
+  palette: PaletteColor[] = createDefaultPalette(),
+  cycles: CRNGRange[] = [],
+): IndexedDocument {
   return {
     mode: 'indexed8',
     width: DEFAULT_WIDTH,
     height: DEFAULT_HEIGHT,
     pixels: new Uint8Array(DEFAULT_WIDTH * DEFAULT_HEIGHT),
-    palette: createDefaultPalette(),
-    cycles: [],
+    palette: sanitizePaletteArray(palette),
+    cycles: cycles.map((range) => ({ ...range })),
   }
 }
 
@@ -71,22 +136,34 @@ export function createDefaultPointer(): PointerState {
   }
 }
 
+export function createDefaultPaletteState(): PaletteState {
+  const colors = createDefaultPalette()
+  return {
+    colors,
+    foregroundIndex: DEFAULT_FOREGROUND_INDEX,
+    backgroundIndex: DEFAULT_BACKGROUND_INDEX,
+    cycles: [],
+  }
+}
+
 export function createDefaultToolState(): ToolState {
   return {
     activeToolId: DEFAULT_TOOL_ID,
     rectangleFilled: false,
-    foregroundIndex: DEFAULT_FOREGROUND_INDEX,
-    backgroundIndex: DEFAULT_BACKGROUND_INDEX,
   }
 }
 
-const createInitialSlices = (): EditorState => ({
-  document: createDefaultIndexedDocument(),
-  view: createDefaultView(),
-  history: createDefaultHistory(),
-  pointer: createDefaultPointer(),
-  tool: createDefaultToolState(),
-})
+const createInitialSlices = (): EditorState => {
+  const palette = createDefaultPaletteState()
+  return {
+    document: createDefaultIndexedDocument(palette.colors, palette.cycles ?? []),
+    palette,
+    view: createDefaultView(),
+    history: createDefaultHistory(),
+    pointer: createDefaultPointer(),
+    tool: createDefaultToolState(),
+  }
+}
 
 type DocumentUpdater = (doc: DocumentState) => DocumentState
 
@@ -97,6 +174,11 @@ type StoreState = EditorState & {
   setViewOffsets: (offsetX: number, offsetY: number) => void
   toggleGrid: (value?: boolean) => void
   setRectangleFilled: (filled: boolean) => void
+  setPaletteColors: (colors: PaletteColor[]) => void
+  updatePaletteColor: (index: number, color: PaletteColor) => void
+  insertPaletteColor: (index: number, color: PaletteColor) => void
+  removePaletteColor: (index: number) => void
+  setPaletteCycles: (cycles: CRNGRange[]) => void
   setForegroundIndex: (index: number) => void
   setBackgroundIndex: (index: number) => void
   setPointer: (state: Partial<PointerState>) => void
@@ -122,9 +204,21 @@ export const useEditorStore = create<StoreState>()(
   devtools((set) => ({
     ...initialSlices,
     setDocument: (doc) => {
-      set((state) => ({
-        document: resolveDocument(doc, state.document),
-      }))
+      set((state) => {
+        const nextDocument = resolveDocument(doc, state.document)
+        if (nextDocument.mode !== 'indexed8') {
+          return { document: nextDocument }
+        }
+        const derivedPalette = normalizePaletteState({
+          ...state.palette,
+          colors: nextDocument.palette.slice(),
+          cycles: nextDocument.cycles ?? state.palette.cycles,
+        })
+        return {
+          document: syncDocumentPalette(nextDocument, derivedPalette),
+          palette: derivedPalette,
+        }
+      })
     },
     updateView: (updater) => {
       set((state) => ({ view: updater(state.view) }))
@@ -158,21 +252,81 @@ export const useEditorStore = create<StoreState>()(
         },
       }))
     },
+    setPaletteColors: (colors) => {
+      set((state) => updatePaletteState(state.palette, state.document, (palette) => ({ ...palette, colors })))
+    },
+    updatePaletteColor: (index, color) => {
+      set((state) =>
+        updatePaletteState(state.palette, state.document, (palette) => {
+          if (index < 0 || index >= palette.colors.length) {
+            return palette
+          }
+          const colors = palette.colors.slice()
+          colors[index] = sanitizeColor(color)
+          return { ...palette, colors }
+        }),
+      )
+    },
+    insertPaletteColor: (index, color) => {
+      set((state) =>
+        updatePaletteState(state.palette, state.document, (palette) => {
+          if (palette.colors.length >= MAX_PALETTE_SIZE) {
+            return palette
+          }
+          const insertAt = Math.max(0, Math.min(index, palette.colors.length))
+          const colors = palette.colors.slice()
+          colors.splice(insertAt, 0, sanitizeColor(color))
+          const foregroundIndex =
+            palette.foregroundIndex >= insertAt ? palette.foregroundIndex + 1 : palette.foregroundIndex
+          const backgroundIndex =
+            palette.backgroundIndex >= insertAt ? palette.backgroundIndex + 1 : palette.backgroundIndex
+          return { ...palette, colors, foregroundIndex, backgroundIndex }
+        }),
+      )
+    },
+    removePaletteColor: (index) => {
+      set((state) =>
+        updatePaletteState(state.palette, state.document, (palette) => {
+          if (palette.colors.length <= MIN_PALETTE_LENGTH) {
+            return palette
+          }
+          const clampedIndex = clampIndex(index, palette.colors.length - 1)
+          const colors = palette.colors.slice()
+          colors.splice(clampedIndex, 1)
+          const adjustAfterRemoval = (value: number): number => {
+            if (value === clampedIndex) return value >= colors.length ? colors.length - 1 : value
+            if (value > clampedIndex) return value - 1
+            return value
+          }
+          const foregroundIndex = adjustAfterRemoval(palette.foregroundIndex)
+          const backgroundIndex = adjustAfterRemoval(palette.backgroundIndex)
+          return { ...palette, colors, foregroundIndex, backgroundIndex }
+        }),
+      )
+    },
+    setPaletteCycles: (cycles) => {
+      set((state) =>
+        updatePaletteState(state.palette, state.document, (palette) => ({
+          ...palette,
+          cycles: cycles.map((cycle) => ({ ...cycle })),
+        })),
+      )
+    },
     setForegroundIndex: (index) => {
-      set((state) => ({
-        tool: {
-          ...state.tool,
+      set((state) =>
+        updatePaletteState(state.palette, state.document, (palette) => ({
+          ...palette,
           foregroundIndex: index,
-        },
-      }))
+        })),
+      )
     },
     setBackgroundIndex: (index) => {
-      set((state) => ({
-        tool: {
-          ...state.tool,
+      set((state) =>
+        updatePaletteState(state.palette, state.document, (palette) => ({
+          ...palette,
           backgroundIndex: index,
-        },
-      }))
+        })),
+      )
     },
     setPointer: (partial) => {
       set((state) => ({ pointer: { ...state.pointer, ...partial } }))
@@ -213,6 +367,7 @@ export const useDocument = <T>(selector: (state: DocumentState) => T) =>
 export const useView = <T>(selector: (state: ViewState) => T) =>
   useEditorStore((state) => selector(state.view))
 export const usePointer = () => useEditorStore((state) => state.pointer)
+export const usePalette = () => useEditorStore((state) => state.palette)
 export const useTool = () => useEditorStore((state) => state.tool)
 export const useHistory = () => useEditorStore((state) => state.history)
 export const useHistoryAvailability = () =>

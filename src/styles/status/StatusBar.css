@@ -1,0 +1,22 @@
+.status-bar {
+  display: flex;
+  justify-content: flex-start;
+  gap: 1rem;
+  padding: 0.5rem 1rem;
+  background: #0c0c0f;
+  border-top: 1px solid #2a2a2f;
+  color: #f4f4f6;
+  font-size: 0.9rem;
+}
+
+.status-bar__item {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+}
+
+.status-label {
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #c6c6ce;
+}

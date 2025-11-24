@@ -10,6 +10,8 @@ class EraseCommand implements Command {
   readonly label = 'Erase stroke'
   private readonly beforeIndexed?: Uint8Array
   private readonly beforeRgba?: Uint32Array
+  private afterIndexed?: Uint8Array
+  private afterRgba?: Uint32Array
   private readonly coordinates: Array<[number, number]> = []
   private readonly value: number
   private readonly isIndexed: boolean
@@ -30,7 +32,23 @@ class EraseCommand implements Command {
     this.coordinates.push(point)
   }
 
+  captureAfter(document: EditorStoreState['document']): void {
+    if (document.mode === 'indexed8') {
+      this.afterIndexed = new Uint8Array(document.pixels)
+    } else {
+      this.afterRgba = new Uint32Array(document.pixels)
+    }
+  }
+
   do(state: EditorStoreState): void {
+    if (this.afterIndexed || this.afterRgba) {
+      if (this.isIndexed && this.afterIndexed) {
+        state.setDocument({ ...state.document, pixels: new Uint8Array(this.afterIndexed) })
+      } else if (!this.isIndexed && this.afterRgba) {
+        state.setDocument({ ...state.document, pixels: new Uint32Array(this.afterRgba) })
+      }
+      return
+    }
     const doc = state.document
     if (this.coordinates.length === 0) return
     let prev = this.coordinates[0]
@@ -57,19 +75,19 @@ export class EraserTool implements Tool {
   id = 'eraser'
   private activeCommand: EraseCommand | null = null
   private lastPoint: [number, number] | null = null
-  private eraseValue = 0
 
   onPointerDown(state: EditorStoreState, x: number, y: number, _evt: PointerEvent): void {
-    this.eraseValue = state.tool.backgroundIndex
-    this.activeCommand = new EraseCommand(state.document, this.eraseValue)
+    const eraseValue = state.palette.backgroundIndex
+    this.activeCommand = new EraseCommand(state.document, eraseValue)
     this.activeCommand.addPoint([x, y])
-    drawLine(state.document, x, y, x, y, this.eraseValue)
+    drawLine(state.document, x, y, x, y, eraseValue)
     this.lastPoint = [x, y]
   }
 
   onPointerMove(state: EditorStoreState, x: number, y: number, _evt: PointerEvent): void {
     if (!this.activeCommand || !this.lastPoint) return
-    drawLine(state.document, this.lastPoint[0], this.lastPoint[1], x, y, this.eraseValue)
+    const eraseValue = state.palette.backgroundIndex
+    drawLine(state.document, this.lastPoint[0], this.lastPoint[1], x, y, eraseValue)
     this.activeCommand.addPoint([x, y])
     this.lastPoint = [x, y]
   }
@@ -77,6 +95,7 @@ export class EraserTool implements Tool {
   onPointerUp(state: EditorStoreState, x: number, y: number, _evt: PointerEvent): void {
     if (!this.activeCommand) return
     this.activeCommand.addPoint([x, y])
+    this.activeCommand.captureAfter(state.document)
     executeCommand(this.activeCommand, { skipDo: true })
     this.activeCommand = null
     this.lastPoint = null
