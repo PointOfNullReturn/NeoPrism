@@ -22,6 +22,8 @@ const DEFAULT_ZOOM: ZoomLevel = 4
 const DEFAULT_HISTORY_LIMIT = 100
 const DEFAULT_TOOL_ID = 'pencil'
 const DEFAULT_PALETTE_LENGTH = 32
+const DEFAULT_FOREGROUND_INDEX = 1
+const DEFAULT_BACKGROUND_INDEX = 0
 
 export function createDefaultPalette(length = DEFAULT_PALETTE_LENGTH): PaletteColor[] {
   const clamped = Math.min(Math.max(2, length), MAX_PALETTE_SIZE)
@@ -72,6 +74,9 @@ export function createDefaultPointer(): PointerState {
 export function createDefaultToolState(): ToolState {
   return {
     activeToolId: DEFAULT_TOOL_ID,
+    rectangleFilled: false,
+    foregroundIndex: DEFAULT_FOREGROUND_INDEX,
+    backgroundIndex: DEFAULT_BACKGROUND_INDEX,
   }
 }
 
@@ -91,6 +96,9 @@ type StoreState = EditorState & {
   setZoom: (zoom: ZoomLevel) => void
   setViewOffsets: (offsetX: number, offsetY: number) => void
   toggleGrid: (value?: boolean) => void
+  setRectangleFilled: (filled: boolean) => void
+  setForegroundIndex: (index: number) => void
+  setBackgroundIndex: (index: number) => void
   setPointer: (state: Partial<PointerState>) => void
   setTool: (activeToolId: string) => void
   setHistory: (state: Partial<HistoryState>) => void
@@ -142,11 +150,35 @@ export const useEditorStore = create<StoreState>()(
         },
       }))
     },
+    setRectangleFilled: (filled) => {
+      set((state) => ({
+        tool: {
+          ...state.tool,
+          rectangleFilled: filled,
+        },
+      }))
+    },
+    setForegroundIndex: (index) => {
+      set((state) => ({
+        tool: {
+          ...state.tool,
+          foregroundIndex: index,
+        },
+      }))
+    },
+    setBackgroundIndex: (index) => {
+      set((state) => ({
+        tool: {
+          ...state.tool,
+          backgroundIndex: index,
+        },
+      }))
+    },
     setPointer: (partial) => {
       set((state) => ({ pointer: { ...state.pointer, ...partial } }))
     },
     setTool: (activeToolId) => {
-      set(() => ({ tool: { activeToolId } }))
+      set((state) => ({ tool: { ...state.tool, activeToolId } }))
     },
     setHistory: (partial) => {
       set((state) => ({ history: { ...state.history, ...partial } }))

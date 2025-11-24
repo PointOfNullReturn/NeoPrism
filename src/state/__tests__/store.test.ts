@@ -91,6 +91,13 @@ describe('pointer + tool actions', () => {
     getState().setTool('line')
     expect(getState().tool.activeToolId).toBe('line')
   })
+
+  it('updates foreground/background color indices', () => {
+    getState().setForegroundIndex(7)
+    expect(getState().tool.foregroundIndex).toBe(7)
+    getState().setBackgroundIndex(3)
+    expect(getState().tool.backgroundIndex).toBe(3)
+  })
 })
 
 describe('history actions', () => {

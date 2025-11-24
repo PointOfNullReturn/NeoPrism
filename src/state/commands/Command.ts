@@ -16,9 +16,11 @@ export const nextCommandId = (prefix = 'cmd'): string => {
   return `${prefix}-${timestamp}-${counter}`
 }
 
-export const executeCommand = (command: Command): void => {
+export const executeCommand = (command: Command, options?: { skipDo?: boolean }): void => {
   const store = useEditorStore.getState()
-  command.do(store)
+  if (!options?.skipDo) {
+    command.do(store)
+  }
   store.setHistory(clearRedoStack(store.history))
   store.pushUndo(command)
 }

@@ -59,7 +59,10 @@ export interface PointerState {
 }
 
 export interface ToolState {
+  rectangleFilled: boolean
   activeToolId: string
+  foregroundIndex: number
+  backgroundIndex: number
 }
 
 export interface HistoryState<CommandShape = CommandLike> {
