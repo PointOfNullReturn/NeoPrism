@@ -13,7 +13,7 @@
   background: transparent;
   border: none;
   color: #eaeaf2;
-  cursor: pointer;
+  cursor: default;
   padding: 0.5rem;
   border-radius: 4px;
 }

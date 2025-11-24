@@ -167,7 +167,12 @@ Simple emoji or SVG placeholders for Alpha.
   * Pixel buffer changes
   * Palette updates
   * Zoom changes
-  * Grid toggle
+* Grid toggle
+
+**Cursor:**
+
+* The canvas stack (CanvasSurface + Overlay) uses a crosshair cursor to provide precise targeting.
+* All other UI regions (menus, toolbar, palette, dialogs) keep the default arrow cursor for familiarity.
 
 **Props:**
 none — uses Zustand selectors

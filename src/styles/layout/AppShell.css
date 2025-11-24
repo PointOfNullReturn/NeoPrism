@@ -45,6 +45,7 @@
 
 .canvas-stack {
   position: relative;
+  cursor: crosshair;
 }
 
 .canvas-stack canvas {
