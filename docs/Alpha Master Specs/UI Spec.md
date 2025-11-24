@@ -1,4 +1,4 @@
-# 🎨 **UI Specification — Swanky Paint (v1.0 Alpha), a Deluxe Paint clone
+# 🎨 **UI Specification — NeoPrism (v1.0 Alpha), a Deluxe Paint clone
 
 This UI spec defines:
 

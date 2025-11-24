@@ -1,6 +1,6 @@
-# SwankyPaint Frontend Scaffold
+# NeoPrism Frontend Scaffold
 
-Modern Deluxe Paint clone targeting React 19 + TypeScript + Vite. This repo already follows the architecture described in `docs/Alpha Master Specs/SwankyPaint Project Spec.md` and the ordered epics under `docs/epics/`. Each story in `docs/stories/` builds on this foundation.
+Modern Deluxe Paint clone targeting React 19 + TypeScript + Vite. This repo already follows the architecture described in `docs/Alpha Master Specs/NeoPrism Project Spec.md` and the ordered epics under `docs/epics/`. Each story in `docs/stories/` builds on this foundation.
 
 ## Project Structure
 
@@ -36,7 +36,7 @@ Before committing, run `npm run prepare` once locally to install Husky so `npx l
 
 - [Epics overview](docs/epics/README.md)
 - [Story backlog](docs/stories/backlog.md)
-- [Master specs](<docs/Alpha\ Master\ Specs/SwankyPaint\ Project\ Spec.md>) _(DPaint MVP details)_
+- [Master specs](<docs/Alpha\ Master\ Specs/NeoPrism\ Project\ Spec.md>) _(DPaint MVP details)_
 
 ## Testing Strategy
 

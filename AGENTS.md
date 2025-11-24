@@ -1,7 +1,7 @@
 # Repository Guidelines
 
 ## Project Structure & Module Organization
-The repo root contains `README.md`, `AGENTS.md`, `docs/` (epics, stories, and the master specs under `docs/Alpha Master Specs/`), plus the `src/` tree. Follow the SwankyPaint project spec for layout: `src/app`, `src/components`, `src/state`, `src/rendering`, `src/canvas`, `src/iff`, `src/utils`, `src/assets`, `src/styles`. Keep assets in `src/assets`, colocate component styles with components, and place Vitest suites alongside modules or under `__tests__`. Use `docs/` for specs/design only—no executable code there.
+The repo root contains `README.md`, `AGENTS.md`, `docs/` (epics, stories, and the master specs under `docs/Alpha Master Specs/`), plus the `src/` tree. Follow the NeoPrism project spec for layout: `src/app`, `src/components`, `src/state`, `src/rendering`, `src/canvas`, `src/iff`, `src/utils`, `src/assets`, `src/styles`. Keep assets in `src/assets`, colocate component styles with components, and place Vitest suites alongside modules or under `__tests__`. Use `docs/` for specs/design only—no executable code there.
 
 ## Build, Test, and Development Commands
 Run `npm install` (or `pnpm install`) once to pull the Vite + React + TypeScript toolchain. `npm run dev` starts the Vite dev server with hot module reload. `npm run build` produces the production bundle plus type checking. `npm run preview` serves the built bundle locally for smoke testing. `npm run test` runs Vitest in watch mode; `npm run test:run` (or `test:coverage`) supports CI.

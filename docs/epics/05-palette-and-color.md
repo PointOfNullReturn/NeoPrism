@@ -1,7 +1,7 @@
 # Epic 05 – Palette & Color Management
 
 ## Scope
-Deliver indexed color workflows: palette state slice, FG/BG selection, sidebar UI, RGBA editor controls, and CRNG metadata handling (`docs/Alpha Master Specs/SwankyPaint Project Spec.md:178`).
+Deliver indexed color workflows: palette state slice, FG/BG selection, sidebar UI, RGBA editor controls, and CRNG metadata handling (`docs/Alpha Master Specs/NeoPrism Project Spec.md:178`).
 
 ## Key Deliverables
 - Palette data structures capped at 256 entries with FG/BG indices and palette change commands for history tracking.

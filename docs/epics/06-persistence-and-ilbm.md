@@ -1,7 +1,7 @@
 # Epic 06 – Persistence & ILBM Import
 
 ## Scope
-Implement project save/load, PNG export, and ILBM import pipelines so SwankyPaint can exchange artwork with other tools (`docs/Alpha Master Specs/SwankyPaint Project Spec.md:204`, `docs/Alpha Master Specs/SwankyPaint Project Spec.md:263`).
+Implement project save/load, PNG export, and ILBM import pipelines so NeoPrism can exchange artwork with other tools (`docs/Alpha Master Specs/NeoPrism Project Spec.md:204`, `docs/Alpha Master Specs/NeoPrism Project Spec.md:263`).
 
 ## Key Deliverables
 - JSON serialization/deserialization covering version, dimensions, mode, pixels (base64), palette, cycles, and view state.

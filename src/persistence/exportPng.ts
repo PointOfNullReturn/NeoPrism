@@ -48,7 +48,7 @@ export const exportCurrentDocumentToPng = async (): Promise<Blob> => {
   const url = URL.createObjectURL(blob)
   const anchor = document.createElement('a')
   anchor.href = url
-  anchor.download = 'swankypaint.png'
+  anchor.download = 'neoprism.png'
   anchor.click()
   URL.revokeObjectURL(url)
   return blob

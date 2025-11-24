@@ -1,7 +1,7 @@
 # Epic 04 – Tools & Input System
 
 ## Scope
-Build the interaction layer that maps pointer/keyboard input to commands: pointer dispatcher, shared Tool interface, and all MVP drawing tools (Pencil, Eraser, Line, Rectangle, Fill, Picker) (`docs/Alpha Master Specs/SwankyPaint Project Spec.md:129`).
+Build the interaction layer that maps pointer/keyboard input to commands: pointer dispatcher, shared Tool interface, and all MVP drawing tools (Pencil, Eraser, Line, Rectangle, Fill, Picker) (`docs/Alpha Master Specs/NeoPrism Project Spec.md:129`).
 
 ## Key Deliverables
 - Pointer dispatcher capturing mouse/touch events, normalizing coordinates, and routing to the active Tool; keyboard shortcuts (B,E,L,R,F,I) for tool switching and Escape for cancel.

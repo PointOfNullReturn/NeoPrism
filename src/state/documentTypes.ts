@@ -1,6 +1,6 @@
 /**
- * Shared type definitions for SwankyPaint's editor state.
- * Mirrors the architecture defined in docs/Alpha Master Specs/SwankyPaint Project Spec.md.
+ * Shared type definitions for NeoPrism's editor state.
+ * Mirrors the architecture defined in docs/Alpha Master Specs/NeoPrism Project Spec.md.
  */
 
 export type ImageMode = 'indexed8' | 'rgba32'

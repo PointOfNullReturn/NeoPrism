@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import { AboutModal } from './AboutModal'
 import { useEditorStore } from '../../state/store'
@@ -15,32 +15,56 @@ export const Menubar = () => {
   const [aboutOpen, setAboutOpen] = useState(false)
   const fileInputJson = useRef<HTMLInputElement | null>(null)
   const fileInputIlbm = useRef<HTMLInputElement | null>(null)
+  const navRef = useRef<HTMLElement | null>(null)
 
   const toggleMenu = (menu: string) => {
     setOpenMenu((current) => (current === menu ? null : menu))
   }
   const closeMenu = () => setOpenMenu(null)
 
+  useEffect(() => {
+    const handlePointerDown = (event: PointerEvent) => {
+      if (!navRef.current) return
+      if (!navRef.current.contains(event.target as Node)) {
+        closeMenu()
+      }
+    }
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        closeMenu()
+      }
+    }
+    document.addEventListener('pointerdown', handlePointerDown)
+    document.addEventListener('keydown', handleKeyDown)
+    return () => {
+      document.removeEventListener('pointerdown', handlePointerDown)
+      document.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [])
+
   const handleNew = () => {
-    resetEditorStore()
     closeMenu()
+    resetEditorStore()
   }
 
   const handleSave = () => {
+    closeMenu()
     const snapshot = serializeProject(useEditorStore.getState())
     const blob = new Blob([snapshot], { type: 'application/json' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = 'swankypaint-project.json'
+    a.download = 'neoprism-project.json'
     a.click()
     URL.revokeObjectURL(url)
-    closeMenu()
   }
 
   const handleOpenJson = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
-    if (!file) return
+    if (!file) {
+      closeMenu()
+      return
+    }
     const content = await file.text()
     loadProject(content)
     event.target.value = ''
@@ -49,15 +73,24 @@ export const Menubar = () => {
 
   const handleOpenIlbm = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
-    if (!file) return
+    if (!file) {
+      closeMenu()
+      return
+    }
     await importIlbmFromFile(file)
     event.target.value = ''
     closeMenu()
   }
 
+  const handleNavPointerDown: React.PointerEventHandler<HTMLElement> = (event) => {
+    if (event.target === navRef.current) {
+      closeMenu()
+    }
+  }
+
   return (
     <>
-      <nav className="menubar">
+      <nav className="menubar" ref={navRef} onPointerDown={handleNavPointerDown}>
         <button type="button" onClick={() => toggleMenu('file')}>
           File
         </button>
@@ -95,8 +128,8 @@ export const Menubar = () => {
               <button
                 type="button"
                 onClick={() => {
-                  setAboutOpen(true)
                   closeMenu()
+                  setAboutOpen(true)
                 }}
               >
                 About

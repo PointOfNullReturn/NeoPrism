@@ -5,7 +5,7 @@ This is clean, modular, and production-ready.
 
 ---
 
-# 🎨 **Modern DPaint Clone (SwankyPaint) — MVP Spec (Version 1.0 Alpha)**
+# 🎨 **Modern DPaint Clone (NeoPrism) — MVP Spec (Version 1.0 Alpha)**
 
 **Codebase Target:** React + TypeScript + Vite + Zustand + Canvas 2D
 **Environment:** VS Code

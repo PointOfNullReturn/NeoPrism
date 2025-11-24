@@ -1,7 +1,7 @@
 # Epic 08 – Testing, QA, and Release Readiness
 
 ## Scope
-Finalize automated and manual testing coverage plus QA documentation to keep the MVP stable (`docs/Alpha Master Specs/SwankyPaint Project Spec.md:387`).
+Finalize automated and manual testing coverage plus QA documentation to keep the MVP stable (`docs/Alpha Master Specs/NeoPrism Project Spec.md:387`).
 
 ## Key Deliverables
 - Expanded Vitest/RTL harness with shared helpers, canvas mocks, and ILBM fixtures.

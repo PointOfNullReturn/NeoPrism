@@ -1,6 +1,6 @@
 # Ordered Epics
 
-The SwankyPaint MVP roadmap is split into eight sequential epics. Each epic contains its own spec plus detailed stories (`docs/stories/xx-*.md`) with matching numbering.
+The NeoPrism MVP roadmap is split into eight sequential epics. Each epic contains its own spec plus detailed stories (`docs/stories/xx-*.md`) with matching numbering.
 
 1. **Epic 01 – Project Foundation & Tooling**
 2. **Epic 02 – Architecture & Editor State**

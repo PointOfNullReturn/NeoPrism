@@ -1,7 +1,7 @@
 # Epic 02 – Architecture & Editor State
 
 ## Scope
-Define the deterministic core that all tools and workflows rely on: typed editor state, Zustand store slices, the Command pattern, and undo/redo infrastructure (`docs/Alpha Master Specs/SwankyPaint Project Spec.md:83`, `docs/Alpha Master Specs/SwankyPaint Project Spec.md:324`).
+Define the deterministic core that all tools and workflows rely on: typed editor state, Zustand store slices, the Command pattern, and undo/redo infrastructure (`docs/Alpha Master Specs/NeoPrism Project Spec.md:83`, `docs/Alpha Master Specs/NeoPrism Project Spec.md:324`).
 
 ## Key Deliverables
 - `EditorState` interface plus supporting types (`PaletteColor`, `CRNGRange`, `ImageMode`).

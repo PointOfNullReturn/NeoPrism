@@ -1,7 +1,7 @@
 # Epic 07 – UI Shell & Layout
 
 ## Scope
-Assemble the visible React UI per spec (`docs/Alpha Master Specs/SwankyPaint Project Spec.md:294`): menubar, toolbar, canvas region, palette sidebar, status bar, dialogs, and responsive layout around the rendering engine.
+Assemble the visible React UI per spec (`docs/Alpha Master Specs/NeoPrism Project Spec.md:294`): menubar, toolbar, canvas region, palette sidebar, status bar, dialogs, and responsive layout around the rendering engine.
 
 ## Key Deliverables
 - `AppShell` layout (CSS grid/flex) that places menubar top, toolbar left, palette right, status bar bottom, and canvas center while accommodating resizing.

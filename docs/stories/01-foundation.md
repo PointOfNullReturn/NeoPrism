@@ -1,9 +1,9 @@
 # Epic 01 Stories – Project Foundation & Tooling
 
 ## Story 01.01 – Scaffold Vite + React + TypeScript _(Status: ✅ Completed)_
-**Goal:** Create the SwankyPaint codebase with Vite (React + TS + SWC) and the directory skeleton described in the master spec.
+**Goal:** Create the NeoPrism codebase with Vite (React + TS + SWC) and the directory skeleton described in the master spec.
 **Acceptance Criteria:**
-- `npm create vite@latest swankypaint -- --template react-swc-ts` (or equivalent) initializes the project; files moved into this repo root.
+- `npm create vite@latest neoprism -- --template react-swc-ts` (or equivalent) initializes the project; files moved into this repo root.
 - `tsconfig.json` uses `"strict": true`, path alias `@/*` for `src/`.
 - Folder structure contains `src/app`, `src/components`, `src/state`, `src/rendering`, `src/canvas`, `src/iff`, `src/utils`, `src/assets`, `src/styles`, and placeholder files for each.
 - `npm run dev` starts the default Vite server without runtime or type errors.

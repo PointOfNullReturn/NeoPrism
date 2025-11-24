@@ -1,4 +1,4 @@
-# Contributing to SwankyPaint
+# Contributing to NeoPrism
 
 1. Read the story backlog in `docs/stories/backlog.md` and pick the next story that is In Progress or ready to start.
 2. Review its epic spec under `docs/epics/` to understand scope and dependencies.

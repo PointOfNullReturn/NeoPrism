@@ -1,7 +1,7 @@
 # Epic 03 – Rendering & Canvas Engine
 
 ## Scope
-Implement the dual pixel buffer engine, imperative Canvas 2D rendering pipeline, zoom/pan/grid view controls, and overlay renderer per spec (`docs/Alpha Master Specs/SwankyPaint Project Spec.md:105`, `docs/Alpha Master Specs/SwankyPaint Project Spec.md:359`).
+Implement the dual pixel buffer engine, imperative Canvas 2D rendering pipeline, zoom/pan/grid view controls, and overlay renderer per spec (`docs/Alpha Master Specs/NeoPrism Project Spec.md:105`, `docs/Alpha Master Specs/NeoPrism Project Spec.md:359`).
 
 ## Key Deliverables
 - Utilities for creating/resizing Indexed8 and RGBA32 buffers constrained to 32×32–4096×4096 resolutions.
