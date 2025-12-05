@@ -30,11 +30,13 @@
 - Editor shows sliders/inputs for RGBA plus numeric text boxes; updating values dispatches PaletteChangeCommand.
 - Add/remove buttons maintain bounds; removing selected color reassigns FG/BG indexes predictably (clamp to max index).
 - Optional CRNG fields (rate, low, high, active) appear when document contains cycles and persist through edits.
+- Color selection occurs by clicking swatches in PaletteView; editor displays selected color index without requiring dropdown interaction.
 
 **Notes:**
 - Implemented `PaletteEditor` alongside `PaletteView`, featuring RGBA sliders + numeric inputs that execute `PaletteChangeCommand` updates for undoable edits.
 - Add/Remove buttons issue insert/remove palette commands, clamp selections, and keep FG index synchronized.
 - CRNG controls expose enable toggle plus rate/low/high inputs wired to `setCycles` commands; component + interactions covered by RTL tests.
+- Editor now uses `palette.foregroundIndex` directly instead of local state, eliminating the dropdown selector. Users click color swatches in PaletteView to select colors, and the editor header displays "Color #X" for the active selection.
 
 ## Story 05.04 – Status Bar & Tool Integration _(Status: ✅ Completed)_
 **Goal:** Keep FG/BG info synchronized across UI and tools.

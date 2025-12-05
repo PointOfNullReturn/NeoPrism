@@ -240,6 +240,13 @@ none — uses Zustand selectors
 * Provide sliders or numeric inputs
 * Apply changes in real-time to palette array
 * Update pixel rendering on change
+* Display currently selected color index (e.g., "Color #1")
+
+**Interaction Model:**
+
+* Color selection occurs by clicking swatches in PaletteView
+* Editor automatically updates to reflect the foreground color from palette state
+* No dropdown selector required; direct swatch interaction provides more intuitive UX
 
 **Optional (Alpha):**
 
