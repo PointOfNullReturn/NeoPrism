@@ -1,14 +1,139 @@
+/* Classic MacOS Menu Bar Styling (Dark Theme Adapted) */
+
 .menubar {
-  background: #1d1d21;
   display: flex;
-  gap: 1rem;
-  padding: 0.5rem 1rem;
+  gap: 4px;
+  padding: 2px 8px;
+  background: linear-gradient(180deg, #3f3f3f 0%, #2a2a2a 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    0 1px 0 rgba(0, 0, 0, 0.3);
+  border-bottom: 1px solid #1a1a1a;
 }
 
-.menubar .menu {
+.menu-container {
+  position: relative;
+}
+
+/* Menu Labels */
+.menu-label {
+  background: transparent;
+  border: 1px solid transparent;
+  padding: 4px 12px;
+  color: #e7e7ee;
+  font-size: 14px;
+  font-weight: 400;
+  cursor: default;
+  transition: background 0.1s, color 0.1s;
+  border-radius: 3px;
+}
+
+.menu-label:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.menu-label.is-active {
+  background: #4a8fd8;
+  color: #ffffff;
+  border-color: #3a7fc8;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+/* Dropdown Container */
+.menu-dropdown {
   position: absolute;
-  background: #2a2a2f;
+  top: calc(100% + 2px);
+  left: 0;
+  min-width: 200px;
+  background: #2f2f2f;
+  border: 2px solid #1a1a1a;
+  border-radius: 4px;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.05),
+    3px 3px 8px rgba(0, 0, 0, 0.5);
   list-style: none;
-  padding: 0.5rem;
+  padding: 4px 0;
   margin: 0;
+  z-index: 1000;
+}
+
+/* Menu Items */
+.menu-dropdown li {
+  list-style: none;
+  margin: 0;
+}
+
+.menu-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 32px;
+  width: 100%;
+  padding: 6px 20px 6px 16px;
+  background: transparent;
+  border: none;
+  color: #e7e7ee;
+  font-size: 14px;
+  text-align: left;
+  cursor: default;
+  transition: background 0.08s, color 0.08s;
+}
+
+.menu-item:hover:not(:disabled) {
+  background: #4a8fd8;
+  color: #ffffff;
+}
+
+.menu-item:disabled {
+  color: #666666;
+  cursor: not-allowed;
+}
+
+.menu-item-label {
+  flex: 1;
+}
+
+.menu-item-shortcut {
+  font-size: 13px;
+  opacity: 0.7;
+  font-family: -apple-system, system-ui, sans-serif;
+  white-space: nowrap;
+  margin-left: 16px;
+}
+
+.menu-item:hover:not(:disabled) .menu-item-shortcut {
+  opacity: 0.9;
+}
+
+/* Menu Divider */
+.menu-divider {
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.1) 10%,
+    rgba(255, 255, 255, 0.1) 90%,
+    transparent 100%
+  );
+  margin: 4px 8px;
+  border: none;
+  padding: 0;
+}
+
+/* Checked items (for toggles) */
+.menu-item.is-checked::before {
+  content: '✓';
+  margin-right: 8px;
+  margin-left: -12px;
+}
+
+/* Focus styles for accessibility */
+.menu-label:focus-visible {
+  outline: 2px solid #4a8fd8;
+  outline-offset: 2px;
+}
+
+.menu-item:focus-visible {
+  outline: 2px solid #4a8fd8;
+  outline-offset: -2px;
 }

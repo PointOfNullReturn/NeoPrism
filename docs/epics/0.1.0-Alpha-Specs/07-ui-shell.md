@@ -5,7 +5,9 @@ Assemble the visible React UI per spec (`docs/Alpha Master Specs/NeoPrism Projec
 
 ## Key Deliverables
 - `AppShell` layout (CSS grid/flex) that places menubar top, toolbar left, palette right, status bar bottom, and canvas center while accommodating resizing.
-- Menubar wiring for File/View/Help actions: new document, open/save/export, zoom controls, grid toggle, and About modal.
+- Menubar wiring for File/View/Help actions: new document, open/save/export, zoom controls, grid toggle, and About modal with classic MacOS (pre-OS X) visual styling.
+- Classic Mac menu system with hover-to-open behavior, keyboard shortcuts display (⌘, ⇧, ⌥), menu dividers, and disabled states.
+- Data-driven menu architecture using TypeScript interfaces with reusable components (MenuLabel, MenuItem, MenuDropdown).
 - Toolbar components with icons/shortcuts reflecting active tool state.
 - Status bar displaying pointer coordinates and FG/BG values without triggering full React rerenders.
 

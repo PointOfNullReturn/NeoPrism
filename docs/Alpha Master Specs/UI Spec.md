@@ -88,32 +88,55 @@ Each component gets:
 
 **Responsibilities:**
 
-* Provide dropdown menus:
+* Provide dropdown menus with classic MacOS (pre-OS X) visual styling:
 
   * **File**
 
-    * New
-    * Open Project
-    * Save Project
+    * New (⌘N)
+    * Open JSON
+    * Open ILBM
+    * Save JSON (⌘S)
     * Export PNG
   * **View**
 
-    * Zoom In
-    * Zoom Out
-    * Reset Zoom
-    * Toggle Grid
+    * Show/Hide Grid (toggle with checkmark)
+    * Zoom In (⌘+)
+    * Zoom Out (⌘-)
+    * Enable/Disable Cycling (toggle)
   * **Help**
 
-    * About
+    * About NeoPrism
+
+**Visual Style:**
+
+* Classic Mac platinum/beveled appearance adapted to dark theme
+* Menu bar uses gradient background with subtle shadow effects
+* Active menu labels highlighted with classic Mac blue (#4a8fd8)
+* Dropdown menus with beveled borders and drop shadows
+* Menu items show hover highlight in classic Mac blue
+* Keyboard shortcuts displayed using Mac symbols (⌘, ⇧, ⌥)
+* Menu dividers separate logical groups of items
+* Disabled items displayed in gray
 
 **Interactions:**
 
-* Clicking on a menu item dispatches a Command (`NewDocumentCommand`, `ExportPNGCommand`, etc.) or triggers modal UI actions.
+* **Hover-to-open behavior**: Click to open first menu, then hovering over other menu labels automatically switches menus (classic Mac behavior)
+* Click same menu label again to close menu and exit menu mode
+* Click outside menu or press Escape to close
+* Menu items execute commands or trigger modal UI actions
+* Visual highlights on hover for both menu labels and items
+
+**Implementation:**
+
+* Data-driven menu structure using TypeScript interfaces
+* Component-based architecture (MenuLabel, MenuItem, MenuDropdown)
+* State management tracks menu active mode for hover behavior
 
 **UI Requirements:**
 
 * Simple button-based dropdowns (not OS-native menus)
 * No submenus (Alpha constraint)
+* Keyboard shortcuts displayed but not yet functionally implemented
 
 ---
 

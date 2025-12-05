@@ -1,27 +1,66 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useMemo } from 'react'
 
 import { AboutModal } from './AboutModal'
+import { MenuLabel } from './MenuLabel'
+import { MenuDropdown } from './MenuDropdown'
 import { useEditorStore } from '../../state/store'
 import { resetEditorStore } from '../../state/store'
 import { serializeProject } from '../../persistence/saveProject'
 import { loadProject } from '../../persistence/loadProject'
 import { exportCurrentDocumentToPng } from '../../persistence/exportPng'
 import { importIlbmFromFile } from '../../iff/importIlbm'
+import type { MenuBarDef } from './types/menuTypes'
 
 import '../../styles/layout/Menubar.css'
 
 export const Menubar = () => {
   const [openMenu, setOpenMenu] = useState<string | null>(null)
+  const [isMenuActive, setIsMenuActive] = useState(false)
+  const [hoveredLabel, setHoveredLabel] = useState<string | null>(null)
   const [aboutOpen, setAboutOpen] = useState(false)
   const fileInputJson = useRef<HTMLInputElement | null>(null)
   const fileInputIlbm = useRef<HTMLInputElement | null>(null)
   const navRef = useRef<HTMLElement | null>(null)
 
-  const toggleMenu = (menu: string) => {
-    setOpenMenu((current) => (current === menu ? null : menu))
-  }
+  // Get view state for dynamic menu items
+  const view = useEditorStore((state) => state.view)
+  const toggleGrid = useEditorStore((state) => state.toggleGrid)
+  const setZoom = useEditorStore((state) => state.setZoom)
+  const setCycleAnimationEnabled = useEditorStore((state) => state.setCycleAnimationEnabled)
+  const zoomLevels = [1, 2, 4, 8, 16, 32] as const
+  const zoomIndex = zoomLevels.indexOf(view.zoom)
+
   const closeMenu = () => {
     setOpenMenu(null)
+    setIsMenuActive(false)
+    setHoveredLabel(null)
+  }
+
+  const handleLabelClick = (menuName: string) => {
+    if (openMenu === menuName) {
+      closeMenu()
+    } else {
+      setOpenMenu(menuName)
+      setIsMenuActive(true)
+    }
+  }
+
+  const handleLabelMouseEnter = (menuName: string) => {
+    setHoveredLabel(menuName)
+    if (isMenuActive) {
+      setOpenMenu(menuName)
+    }
+  }
+
+  const handleLabelMouseLeave = () => {
+    setHoveredLabel(null)
+  }
+
+  const handleItemClick = (action?: () => void) => {
+    if (action) {
+      action()
+    }
+    closeMenu()
   }
 
   useEffect(() => {
@@ -45,12 +84,10 @@ export const Menubar = () => {
   }, [])
 
   const handleNew = () => {
-    closeMenu()
     resetEditorStore()
   }
 
   const handleSave = () => {
-    closeMenu()
     const snapshot = serializeProject(useEditorStore.getState())
     const blob = new Blob([snapshot], { type: 'application/json' })
     const url = URL.createObjectURL(blob)
@@ -64,24 +101,20 @@ export const Menubar = () => {
   const handleOpenJson = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     if (!file) {
-      closeMenu()
       return
     }
     const content = await file.text()
     loadProject(content)
     event.target.value = ''
-    closeMenu()
   }
 
   const handleOpenIlbm = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     if (!file) {
-      closeMenu()
       return
     }
     await importIlbmFromFile(file)
     event.target.value = ''
-    closeMenu()
   }
 
   const handleNavPointerDown: React.PointerEventHandler<HTMLElement> = (event) => {
@@ -90,83 +123,106 @@ export const Menubar = () => {
     }
   }
 
+  // Menu definitions
+  const menuBarDefinition: MenuBarDef = useMemo(
+    () => [
+      {
+        label: 'File',
+        items: [
+          { type: 'item', label: 'New', action: handleNew, shortcut: 'Cmd+N' },
+          { type: 'divider' },
+          {
+            type: 'item',
+            label: 'Open JSON...',
+            action: () => fileInputJson.current?.click(),
+          },
+          {
+            type: 'item',
+            label: 'Open ILBM...',
+            action: () => fileInputIlbm.current?.click(),
+          },
+          { type: 'divider' },
+          { type: 'item', label: 'Save JSON', action: handleSave, shortcut: 'Cmd+S' },
+          {
+            type: 'item',
+            label: 'Export PNG...',
+            action: () => void exportCurrentDocumentToPng(),
+          },
+        ],
+      },
+      {
+        label: 'View',
+        items: [
+          {
+            type: 'item',
+            label: view.showGrid ? 'Hide Grid' : 'Show Grid',
+            action: toggleGrid,
+            checked: view.showGrid,
+          },
+          { type: 'divider' },
+          {
+            type: 'item',
+            label: 'Zoom In',
+            action: () => setZoom(zoomLevels[zoomIndex + 1] ?? view.zoom),
+            shortcut: 'Cmd++',
+            disabled: zoomIndex >= zoomLevels.length - 1,
+          },
+          {
+            type: 'item',
+            label: 'Zoom Out',
+            action: () => setZoom(zoomLevels[zoomIndex - 1] ?? view.zoom),
+            shortcut: 'Cmd+-',
+            disabled: zoomIndex <= 0,
+          },
+          { type: 'divider' },
+          {
+            type: 'item',
+            label: view.cycleAnimationEnabled ? 'Disable Cycling' : 'Enable Cycling',
+            action: () => setCycleAnimationEnabled((current) => !current),
+          },
+        ],
+      },
+      {
+        label: 'Help',
+        items: [
+          {
+            type: 'item',
+            label: 'About NeoPrism',
+            action: () => setAboutOpen(true),
+          },
+        ],
+      },
+    ],
+    [view, zoomIndex, toggleGrid, setZoom, setCycleAnimationEnabled],
+  )
+
   return (
     <>
       <nav className="menubar" ref={navRef} onPointerDown={handleNavPointerDown}>
-        <button
-          type="button"
-          onClick={() => {
-            toggleMenu('file')
-          }}
-        >
-          File
-        </button>
-        {openMenu === 'file' && (
-          <ul className="menu" role="menu">
-            <li>
-              <button type="button" onClick={handleNew}>
-                New
-              </button>
-            </li>
-            <li>
-              <button type="button" onClick={() => fileInputJson.current?.click()}>
-                Open JSON
-              </button>
-            </li>
-            <li>
-              <button type="button" onClick={() => fileInputIlbm.current?.click()}>
-                Open ILBM
-              </button>
-            </li>
-            <li>
-              <button type="button" onClick={handleSave}>
-                Save JSON
-              </button>
-            </li>
-            <li>
-              <button
-                type="button"
-                onClick={() => {
-                  void exportCurrentDocumentToPng()
-                }}
-              >
-                Export PNG
-              </button>
-            </li>
-          </ul>
-        )}
-        <button
-          type="button"
-          onClick={() => {
-            toggleMenu('view')
-          }}
-        >
-          View
-        </button>
-        {openMenu === 'view' && <ViewMenu onRequestClose={closeMenu} />}
-        <button
-          type="button"
-          onClick={() => {
-            toggleMenu('help')
-          }}
-        >
-          Help
-        </button>
-        {openMenu === 'help' && (
-          <ul className="menu" role="menu">
-            <li>
-              <button
-                type="button"
-                onClick={() => {
-                  closeMenu()
-                  setAboutOpen(true)
-                }}
-              >
-                About
-              </button>
-            </li>
-          </ul>
-        )}
+        {menuBarDefinition.map((menu) => {
+          const isOpen = openMenu === menu.label.toLowerCase()
+          const isHovered = hoveredLabel === menu.label.toLowerCase()
+
+          return (
+            <div key={menu.label} className="menu-container">
+              <MenuLabel
+                label={menu.label}
+                isOpen={isOpen}
+                isHovered={isHovered}
+                onClick={() => handleLabelClick(menu.label.toLowerCase())}
+                onMouseEnter={() => handleLabelMouseEnter(menu.label.toLowerCase())}
+                onMouseLeave={handleLabelMouseLeave}
+              />
+              {isOpen && (
+                <MenuDropdown
+                  menuLabel={menu.label}
+                  items={menu.items}
+                  onItemClick={handleItemClick}
+                />
+              )}
+            </div>
+          )
+        })}
       </nav>
       <input
         ref={fileInputJson}
@@ -193,64 +249,5 @@ export const Menubar = () => {
         }}
       />
     </>
-  )
-}
-
-const ViewMenu = ({ onRequestClose }: { onRequestClose: () => void }) => {
-  const view = useEditorStore((state) => state.view)
-  const toggleGrid = useEditorStore((state) => state.toggleGrid)
-  const setZoom = useEditorStore((state) => state.setZoom)
-  const setCycleAnimationEnabled = useEditorStore((state) => state.setCycleAnimationEnabled)
-  const zoomLevels = [1, 2, 4, 8, 16, 32] as const
-  const zoomIndex = zoomLevels.indexOf(view.zoom)
-  return (
-    <ul className="menu" role="menu">
-      <li>
-        <button
-          type="button"
-          onClick={() => {
-            toggleGrid()
-            onRequestClose()
-          }}
-        >
-          {view.showGrid ? 'Hide Grid' : 'Show Grid'}
-        </button>
-      </li>
-      <li>
-        <button
-          type="button"
-          disabled={zoomIndex >= zoomLevels.length - 1}
-          onClick={() => {
-            setZoom(zoomLevels[zoomIndex + 1] ?? view.zoom)
-            onRequestClose()
-          }}
-        >
-          Zoom In
-        </button>
-      </li>
-      <li>
-        <button
-          type="button"
-          disabled={zoomIndex <= 0}
-          onClick={() => {
-            setZoom(zoomLevels[zoomIndex - 1] ?? view.zoom)
-            onRequestClose()
-          }}
-        >
-          Zoom Out
-        </button>
-      </li>
-      <li>
-        <button
-          type="button"
-          onClick={() => {
-            setCycleAnimationEnabled((current) => !current)
-            onRequestClose()
-          }}
-        >
-          {view.cycleAnimationEnabled ? 'Disable Cycling' : 'Enable Cycling'}
-        </button>
-      </li>
-    </ul>
   )
 }

@@ -25,16 +25,26 @@
 - Tests ensure clicking a button switches the active tool.
 
 ## Story 07.03 – Menubar & Dialogs _(Status: ✅ Completed)_
-**Goal:** Provide File/View/Help menus with functional commands.
+**Goal:** Provide File/View/Help menus with functional commands and classic MacOS styling.
 **Acceptance Criteria:**
 - File menu handles New (clear doc), Open (JSON/ILBM), Save (JSON), Export PNG, each hooking into previously implemented commands.
 - View menu toggles grid and adjusts zoom in/out (clamped) reflecting disabled states at min/max zoom.
 - Help menu opens About modal containing version/build info; modal accessible via keyboard.
+- Classic Mac visual appearance with beveled/platinum styling adapted to dark theme.
+- Hover-to-open behavior: click to open first menu, then hovering switches between menus.
+- Keyboard shortcuts displayed using Mac symbols (⌘, ⇧, ⌥).
+- Menu dividers separate logical groups of items.
 
 **Notes:**
 - Added `Menubar` component with File/View/Help menus wired to New/Open/Save/Export/zoom/grid actions and ILBM import.
 - Introduced keyboard-dismissable About modal with version info.
 - Tests verify menu interactions and modal rendering.
+- **Classic Mac Redesign**: Refactored menu system with data-driven architecture using `MenuBarDef` interface and split into reusable components (`MenuLabel`, `MenuItem`, `MenuDropdown`).
+- Implemented hover-to-open behavior with `isMenuActive` state that enables menu switching on hover after initial click.
+- Added keyboard shortcuts utility (`formatShortcut`) to display Mac symbols in menu items.
+- Visual styling uses classic Mac blue (#4a8fd8) for active/hover states, gradient backgrounds, and beveled borders adapted for dark theme.
+- Menu dividers added to File and View menus to separate logical groups.
+- Disabled states properly styled and functionally disabled at zoom limits.
 
 ## Story 07.04 – Status Bar & Live Readouts _(Status: ✅ Completed)_
 **Goal:** Display pointer coordinates plus FG/BG data efficiently.

@@ -9,7 +9,7 @@ describe('Menubar', () => {
     resetEditorStore()
     render(<Menubar />)
     fireEvent.click(screen.getByRole('button', { name: /help/i }))
-    fireEvent.click(screen.getByRole('button', { name: /about/i }))
+    fireEvent.click(screen.getByRole('menuitem', { name: /about/i }))
     expect(screen.getByRole('dialog')).toBeInTheDocument()
   })
 
@@ -18,8 +18,8 @@ describe('Menubar', () => {
     render(<Menubar />)
     const viewButton = screen.getByRole('button', { name: /view/i })
     fireEvent.click(viewButton)
-    fireEvent.click(screen.getByRole('button', { name: /enable cycling/i }))
+    fireEvent.click(screen.getByRole('menuitem', { name: /enable cycling/i }))
     fireEvent.click(viewButton) // reopen to read updated label
-    expect(screen.getByRole('button', { name: /disable cycling/i })).toBeInTheDocument()
+    expect(screen.getByRole('menuitem', { name: /disable cycling/i })).toBeInTheDocument()
   })
 })
