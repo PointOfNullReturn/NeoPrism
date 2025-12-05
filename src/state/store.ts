@@ -40,14 +40,60 @@ const sanitizeColor = (color: PaletteColor): PaletteColor => ({
   a: clampChannel(color.a),
 })
 
+// Deluxe Paint II 32-color palette
+const DP2_PALETTE: PaletteColor[] = [
+  { r: 0, g: 0, b: 0, a: 255 },       // 0: Black
+  { r: 136, g: 136, b: 136, a: 255 }, // 1: Gray
+  { r: 255, g: 255, b: 255, a: 255 }, // 2: White
+  { r: 0, g: 0, b: 255, a: 255 },     // 3: Blue
+  { r: 0, g: 136, b: 255, a: 255 },   // 4: Medium Blue
+  { r: 0, g: 255, b: 255, a: 255 },   // 5: Cyan
+  { r: 0, g: 255, b: 136, a: 255 },   // 6: Aqua Green
+  { r: 0, g: 255, b: 0, a: 255 },     // 7: Green
+  { r: 136, g: 255, b: 0, a: 255 },   // 8: Yellow-Green
+  { r: 255, g: 255, b: 0, a: 255 },   // 9: Yellow
+  { r: 255, g: 136, b: 0, a: 255 },   // 10: Orange
+  { r: 255, g: 0, b: 0, a: 255 },     // 11: Red
+  { r: 255, g: 0, b: 136, a: 255 },   // 12: Fuchsia
+  { r: 255, g: 0, b: 255, a: 255 },   // 13: Magenta
+  { r: 136, g: 0, b: 255, a: 255 },   // 14: Purple
+  { r: 0, g: 0, b: 136, a: 255 },     // 15: Dark Blue
+  { r: 0, g: 68, b: 255, a: 255 },    // 16: Blue Variant
+  { r: 0, g: 136, b: 136, a: 255 },   // 17: Teal
+  { r: 0, g: 136, b: 68, a: 255 },    // 18: Dark Aqua
+  { r: 0, g: 136, b: 0, a: 255 },     // 19: Dark Green
+  { r: 68, g: 136, b: 0, a: 255 },    // 20: Olive Green
+  { r: 136, g: 136, b: 0, a: 255 },   // 21: Dull Yellow
+  { r: 136, g: 68, b: 0, a: 255 },    // 22: Brownish
+  { r: 136, g: 0, b: 0, a: 255 },     // 23: Deep Red
+  { r: 136, g: 0, b: 68, a: 255 },    // 24: Burgundy
+  { r: 136, g: 0, b: 136, a: 255 },   // 25: Dark Magenta
+  { r: 68, g: 0, b: 136, a: 255 },    // 26: Violet
+  { r: 0, g: 0, b: 68, a: 255 },      // 27: Very Dark Blue
+  { r: 0, g: 34, b: 255, a: 255 },    // 28: Blue Tint
+  { r: 0, g: 68, b: 136, a: 255 },    // 29: Slate Blue
+  { r: 0, g: 68, b: 68, a: 255 },     // 30: Deep Teal
+  { r: 0, g: 68, b: 0, a: 255 },      // 31: Forest Green
+]
+
 export function createDefaultPalette(length = DEFAULT_PALETTE_LENGTH): PaletteColor[] {
   const clamped = Math.min(Math.max(2, length), MAX_PALETTE_SIZE)
-  return Array.from({ length: clamped }, (_, index) => ({
-    r: index,
-    g: index,
-    b: index,
-    a: 255,
-  }))
+
+  // If requesting 32 colors or less, use DP2 palette
+  if (clamped <= DP2_PALETTE.length) {
+    return DP2_PALETTE.slice(0, clamped)
+  }
+
+  // For larger palettes, start with DP2 and extend with grayscale
+  return [
+    ...DP2_PALETTE,
+    ...Array.from({ length: clamped - DP2_PALETTE.length }, (_, index) => ({
+      r: index + DP2_PALETTE.length,
+      g: index + DP2_PALETTE.length,
+      b: index + DP2_PALETTE.length,
+      a: 255,
+    })),
+  ]
 }
 
 const sanitizePaletteArray = (colors: PaletteColor[]): PaletteColor[] => {
