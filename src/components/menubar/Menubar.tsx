@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useMemo } from 'react'
+import { useEffect, useRef, useState, useMemo, useCallback } from 'react'
 
 import { AboutModal } from './AboutModal'
 import { MenuLabel } from './MenuLabel'
@@ -12,6 +12,8 @@ import { importIlbmFromFile } from '../../iff/importIlbm'
 import type { MenuBarDef } from './types/menuTypes'
 
 import '../../styles/layout/Menubar.css'
+
+const ZOOM_LEVELS = [1, 2, 4, 8, 16, 32] as const
 
 export const Menubar = () => {
   const [openMenu, setOpenMenu] = useState<string | null>(null)
@@ -27,8 +29,7 @@ export const Menubar = () => {
   const toggleGrid = useEditorStore((state) => state.toggleGrid)
   const setZoom = useEditorStore((state) => state.setZoom)
   const setCycleAnimationEnabled = useEditorStore((state) => state.setCycleAnimationEnabled)
-  const zoomLevels = [1, 2, 4, 8, 16, 32] as const
-  const zoomIndex = zoomLevels.indexOf(view.zoom)
+  const zoomIndex = ZOOM_LEVELS.indexOf(view.zoom)
 
   const closeMenu = () => {
     setOpenMenu(null)
@@ -83,11 +84,11 @@ export const Menubar = () => {
     }
   }, [])
 
-  const handleNew = () => {
+  const handleNew = useCallback(() => {
     resetEditorStore()
-  }
+  }, [])
 
-  const handleSave = () => {
+  const handleSave = useCallback(() => {
     const snapshot = serializeProject(useEditorStore.getState())
     const blob = new Blob([snapshot], { type: 'application/json' })
     const url = URL.createObjectURL(blob)
@@ -96,7 +97,7 @@ export const Menubar = () => {
     a.download = 'neoprism-project.json'
     a.click()
     URL.revokeObjectURL(url)
-  }
+  }, [])
 
   const handleOpenJson = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
@@ -123,6 +124,18 @@ export const Menubar = () => {
     }
   }
 
+  const handleOpenJsonClick = useCallback(() => {
+    fileInputJson.current?.click()
+  }, [])
+
+  const handleOpenIlbmClick = useCallback(() => {
+    fileInputIlbm.current?.click()
+  }, [])
+
+  const handleExportPng = useCallback(() => {
+    void exportCurrentDocumentToPng()
+  }, [])
+
   // Menu definitions
   const menuBarDefinition: MenuBarDef = useMemo(
     () => [
@@ -134,19 +147,19 @@ export const Menubar = () => {
           {
             type: 'item',
             label: 'Open JSON...',
-            action: () => fileInputJson.current?.click(),
+            action: handleOpenJsonClick,
           },
           {
             type: 'item',
             label: 'Open ILBM...',
-            action: () => fileInputIlbm.current?.click(),
+            action: handleOpenIlbmClick,
           },
           { type: 'divider' },
           { type: 'item', label: 'Save JSON', action: handleSave, shortcut: 'Cmd+S' },
           {
             type: 'item',
             label: 'Export PNG...',
-            action: () => void exportCurrentDocumentToPng(),
+            action: handleExportPng,
           },
         ],
       },
@@ -163,14 +176,18 @@ export const Menubar = () => {
           {
             type: 'item',
             label: 'Zoom In',
-            action: () => setZoom(zoomLevels[zoomIndex + 1] ?? view.zoom),
+            action: () => {
+              setZoom(ZOOM_LEVELS[zoomIndex + 1] ?? view.zoom)
+            },
             shortcut: 'Cmd++',
-            disabled: zoomIndex >= zoomLevels.length - 1,
+            disabled: zoomIndex >= ZOOM_LEVELS.length - 1,
           },
           {
             type: 'item',
             label: 'Zoom Out',
-            action: () => setZoom(zoomLevels[zoomIndex - 1] ?? view.zoom),
+            action: () => {
+              setZoom(ZOOM_LEVELS[zoomIndex - 1] ?? view.zoom)
+            },
             shortcut: 'Cmd+-',
             disabled: zoomIndex <= 0,
           },
@@ -178,7 +195,9 @@ export const Menubar = () => {
           {
             type: 'item',
             label: view.cycleAnimationEnabled ? 'Disable Cycling' : 'Enable Cycling',
-            action: () => setCycleAnimationEnabled((current) => !current),
+            action: () => {
+              setCycleAnimationEnabled((current) => !current)
+            },
           },
         ],
       },
@@ -188,11 +207,14 @@ export const Menubar = () => {
           {
             type: 'item',
             label: 'About NeoPrism',
-            action: () => setAboutOpen(true),
+            action: () => {
+              setAboutOpen(true)
+            },
           },
         ],
       },
     ],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [view, zoomIndex, toggleGrid, setZoom, setCycleAnimationEnabled],
   )
 
@@ -209,8 +231,12 @@ export const Menubar = () => {
                 label={menu.label}
                 isOpen={isOpen}
                 isHovered={isHovered}
-                onClick={() => handleLabelClick(menu.label.toLowerCase())}
-                onMouseEnter={() => handleLabelMouseEnter(menu.label.toLowerCase())}
+                onClick={() => {
+                  handleLabelClick(menu.label.toLowerCase())
+                }}
+                onMouseEnter={() => {
+                  handleLabelMouseEnter(menu.label.toLowerCase())
+                }}
                 onMouseLeave={handleLabelMouseLeave}
               />
               {isOpen && (

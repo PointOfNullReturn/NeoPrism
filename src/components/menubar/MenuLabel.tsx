@@ -15,11 +15,7 @@ export const MenuLabel = ({
   onMouseEnter,
   onMouseLeave,
 }: MenuLabelProps) => {
-  const classNames = [
-    'menu-label',
-    isOpen && 'is-active',
-    isHovered && !isOpen && 'is-hovered',
-  ]
+  const classNames = ['menu-label', isOpen && 'is-active', isHovered && !isOpen && 'is-hovered']
     .filter(Boolean)
     .join(' ')
 

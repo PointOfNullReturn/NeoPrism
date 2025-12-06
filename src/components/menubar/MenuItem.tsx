@@ -24,7 +24,9 @@ export const MenuItem = ({ item, onClick }: MenuItemProps) => {
         aria-disabled={item.disabled}
       >
         <span className="menu-item-label">{item.label}</span>
-        {item.shortcut && <span className="menu-item-shortcut">{formatShortcut(item.shortcut)}</span>}
+        {item.shortcut && (
+          <span className="menu-item-shortcut">{formatShortcut(item.shortcut)}</span>
+        )}
       </button>
     </li>
   )
